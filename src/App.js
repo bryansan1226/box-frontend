@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
+import Homepage from "./pages/Homepage";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="*" element={<NoPage />} />
         </Route>*/}
         <Route index element={<Login />} />
+        <Route path="/home" element={<Homepage />} />
       </Routes>
     </BrowserRouter>
   );
