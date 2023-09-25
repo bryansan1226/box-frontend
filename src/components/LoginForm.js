@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function LoginForm() {
+  //declaring variables to handle user input and allow navigating within the app using navigate
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -22,6 +23,8 @@ function LoginForm() {
   };
   const handleLogin = async () => {
     try {
+      /*Makes an API call to the backend with the provided username and password. 
+      If the API returns a token, it will be set in localstorage and the user will be navigated to the homepage*/
       const response = await axios.post("/api/login", { username, password });
       const token = response.data.token;
       localStorage.setItem("token", token);
