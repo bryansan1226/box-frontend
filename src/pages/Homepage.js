@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import backendUrl from "../config";
 import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
+import NewPostForm from "../components/NewPostForm";
 
 function Homepage() {
   //State to store user information
@@ -27,6 +28,7 @@ function Homepage() {
       });
       // Returns user data if successful
       return response.data;
+      //console.log(response.data);
     } catch (error) {
       console.error("Error fetching user information", error);
       return null;
@@ -59,6 +61,7 @@ function Homepage() {
     return (
       <>
         <h1>Welcome, {userInfo.first_name}!</h1>
+        <NewPostForm userInfo={userInfo} />
         <Button variant="contained" size="small" onClick={handleSignOut}>
           Sign out
         </Button>
