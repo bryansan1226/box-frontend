@@ -4,6 +4,7 @@ import backendUrl from "../config";
 import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 import NewPostForm from "../components/NewPostForm";
+import PostFeed from "../components/PostFeed";
 
 function Homepage() {
   //State to store user information
@@ -62,6 +63,7 @@ function Homepage() {
       <>
         <h1>Welcome, {userInfo.first_name}!</h1>
         <NewPostForm userInfo={userInfo} />
+        <PostFeed userInfo={userInfo} />
         <Button variant="contained" size="small" onClick={handleSignOut}>
           Sign out
         </Button>
