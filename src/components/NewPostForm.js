@@ -25,11 +25,12 @@ function NewPostForm(props) {
       .then((response) => {
         const { message } = response.data;
         console.log("Response from server:", message);
+        props.getUserPosts();
+        setNewPostText("");
       })
       .catch((error) => {
         console.error("Error posting data: ", error);
       });
-    //setNewPostText("");
   };
 
   return (
@@ -44,6 +45,7 @@ function NewPostForm(props) {
             rows={4}
             fullWidth
             onChange={handleNewPostText}
+            value={newPostText}
           />
         </div>
       </CardContent>

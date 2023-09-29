@@ -62,7 +62,8 @@ function Homepage() {
     return (
       <>
         <h1>Welcome, {userInfo.first_name}!</h1>
-        <NewPostForm userInfo={userInfo} />
+        {/*<NewPostForm userInfo={userInfo} />
+        Experimenting with whether it's better render NewPostForm from homepage or PostFeed*/}
         <PostFeed userInfo={userInfo} />
         <Button variant="contained" size="small" onClick={handleSignOut}>
           Sign out
