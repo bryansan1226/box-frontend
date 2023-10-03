@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Homepage from "./pages/Homepage";
+import SearchResults from "./pages/SearchResults";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         </Route>*/}
         <Route index element={<Login />} />
         <Route path="/home" element={<Homepage />} />
+        <Route path="/searchResults" element={<SearchResults />} />
       </Routes>
     </BrowserRouter>
   );

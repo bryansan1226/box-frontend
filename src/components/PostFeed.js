@@ -32,7 +32,7 @@ function PostFeed(props) {
 
   return (
     <>
-      <NewPostForm userInfo={props.userInfo} getUserPosts={getUserPosts()} />
+      <NewPostForm userInfo={props.userInfo} getUserPosts={getUserPosts} />
       <h2>Feed:</h2>
       <div>
         {posts.map((content, index) => (

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 import NewPostForm from "../components/NewPostForm";
 import PostFeed from "../components/PostFeed";
+import SearchBar from "../components/SearchBar";
 
 function Homepage() {
   //State to store user information
@@ -62,9 +63,13 @@ function Homepage() {
     return (
       <>
         <h1>Welcome, {userInfo.first_name}!</h1>
-        {/*<NewPostForm userInfo={userInfo} />
-        Experimenting with whether it's better render NewPostForm from homepage or PostFeed*/}
+        <SearchBar />
         <PostFeed userInfo={userInfo} />
+        <Button variant="contained" size="small" onClick={null}>
+          {" "}
+          {/*handle page for viewing following*/}
+          View Following
+        </Button>
         <Button variant="contained" size="small" onClick={handleSignOut}>
           Sign out
         </Button>
