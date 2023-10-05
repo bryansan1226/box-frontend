@@ -29,6 +29,25 @@ function UserCard(props) {
         console.error("Error posting data: ", error);
       });
   };
+  const unfollowUser = async () => {
+    //   const currentTimestamp = new Date().toISOString();
+    axios
+      .delete(`${backendUrl}api/unfollow`, {
+        data: {
+          user_id: props.result.user_id,
+          follower_id: props.userInfo,
+        },
+      })
+      .then((response) => {
+        const { message } = response.data;
+        setFollowing(false);
+        console.log("Response from server:", message);
+      })
+      .catch((error) => {
+        console.error("Error deleting data: ", error);
+      });
+  };
+
   const isFollowing = async () => {
     axios
       .get(
@@ -78,7 +97,9 @@ function UserCard(props) {
           </Typography>
         </CardContent>
         <CardActions>
-          {/*<Button size="small" onClick={followUser}>Follow</Button>*/}
+          <Button size="small" onClick={unfollowUser}>
+            Unfollow
+          </Button>
         </CardActions>
       </Card>
     );
