@@ -12,7 +12,9 @@ function SearchBar(props) {
   };
 
   const handleSearch = () => {
-    navigate(`/searchResults?searchQuery=${searchQuery}`);
+    navigate(
+      `/searchResults?searchQuery=${searchQuery}&userInfo=${props.userInfo.user_id}`
+    );
   };
 
   return (

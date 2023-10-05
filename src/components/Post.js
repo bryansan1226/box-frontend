@@ -7,7 +7,6 @@ import {
 } from "@mui/material";
 
 function Post(props) {
-  console.log("In Post: " + props.content);
   return (
     <Card style={{ maxWidth: "100%" }}>
       <CardContent>

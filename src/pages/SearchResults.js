@@ -8,6 +8,7 @@ function SearchResults() {
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
   const searchQuery = queryParams.get("searchQuery");
+  const userInfo = queryParams.get("userInfo");
   const [results, setResults] = useState([]);
 
   const searchForUser = async () => {
@@ -33,7 +34,7 @@ function SearchResults() {
       </div>
       <div>
         {results.map((result, index) => (
-          <UserCard key={index} result={result} />
+          <UserCard key={index} result={result} userInfo={userInfo} />
         ))}
       </div>
     </>
