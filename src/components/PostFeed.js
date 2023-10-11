@@ -8,14 +8,27 @@ import NewPostForm from "./NewPostForm";
 
 function PostFeed(props) {
   const [posts, getPosts] = useState([]);
+  let allPosts = [];
   const getUserPosts = async () => {
     axios
       .get(`${backendUrl}api/getUserPosts/${props.userInfo.user_id}`)
       .then((response) => {
         const message = response.data.rows;
+        allPosts = [...message];
+      })
+      .catch((error) => {
+        console.error("Error fetching data: ", error);
+      });
+  };
+  const getFollowingPosts = async () => {
+    axios
+      .get(`${backendUrl}api/getFollowingPosts/${props.userInfo.user_id}`)
+      .then((response) => {
+        const message = response.data.rows;
+        allPosts = [...allPosts, ...message];
         console.log("Response from server:", message);
         getPosts(
-          message.sort((a, b) => {
+          allPosts.sort((a, b) => {
             const timeStampA = new Date(a.created_at).getTime();
             const timeStampB = new Date(b.created_at).getTime();
             return timeStampB - timeStampA;
@@ -26,8 +39,11 @@ function PostFeed(props) {
         console.error("Error fetching data: ", error);
       });
   };
+
   useEffect(() => {
-    getUserPosts();
+    getUserPosts().then(() => {
+      getFollowingPosts();
+    });
   }, []);
 
   return (

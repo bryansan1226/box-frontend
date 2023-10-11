@@ -13,7 +13,7 @@ function Homepage() {
   const navigate = useNavigate();
 
   const fetchUserInfo = async () => {
-    console.log("got to fetch");
+    //  console.log("got to fetch");
     try {
       //Retrieves token from localstorage, if no token is present the user will be redirected to /login
       const token = localStorage.getItem("token");
