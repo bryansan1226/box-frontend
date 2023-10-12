@@ -6,6 +6,8 @@ import Button from "@mui/material/Button";
 import NewPostForm from "../components/NewPostForm";
 import PostFeed from "../components/PostFeed";
 import SearchBar from "../components/SearchBar";
+import AppBar from "../components/AppBar";
+import Typography from "@mui/material/Typography";
 
 function Homepage() {
   //State to store user information
@@ -62,8 +64,10 @@ function Homepage() {
   } else {
     return (
       <>
-        <h1>Welcome, {userInfo.first_name}!</h1>
-        <SearchBar userInfo={userInfo} />
+        <AppBar userInfo={userInfo} />
+        <Typography variant="h4" gutterBottom>
+          Welcome, {userInfo.first_name}!
+        </Typography>
         <PostFeed userInfo={userInfo} />
         <Button variant="contained" size="small" onClick={null}>
           {" "}

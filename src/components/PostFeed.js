@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import Post from "./Post";
 import { CardContent } from "@mui/material";
 import NewPostForm from "./NewPostForm";
+import Typography from "@mui/material/Typography";
 
 function PostFeed(props) {
   const [posts, getPosts] = useState([]);
@@ -49,10 +50,12 @@ function PostFeed(props) {
   return (
     <>
       <NewPostForm userInfo={props.userInfo} getUserPosts={getUserPosts} />
-      <h2>Feed:</h2>
+      <Typography variant="h5" gutterBottom>
+        Feed:
+      </Typography>
       <div>
         {posts.map((content, index) => (
-          <Post key={index} content={content} />
+          <Post key={index} content={content} userInfo={props.userInfo} />
         ))}
       </div>
     </>

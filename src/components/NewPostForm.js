@@ -4,6 +4,7 @@ import { useState } from "react";
 import axios from "axios";
 import backendUrl from "../config";
 import { Button } from "@mui/material";
+import Typography from "@mui/material/Typography";
 
 function NewPostForm(props) {
   const [newPostText, setNewPostText] = useState("");
@@ -37,7 +38,9 @@ function NewPostForm(props) {
     <Card>
       <CardContent>
         <div>
-          <h2>New Post:</h2>
+          <Typography variant="h5" gutterBottom>
+            New Post:
+          </Typography>
           <TextField
             id="outlined-multiline-static"
             label=""

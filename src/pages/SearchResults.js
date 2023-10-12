@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import backendUrl from "../config";
 import axios from "axios";
 import UserCard from "../components/UserCard";
+import AppBar from "../components/AppBar";
 
 function SearchResults() {
   const { search } = useLocation();
@@ -29,6 +30,7 @@ function SearchResults() {
 
   return (
     <>
+      <AppBar />
       <div>
         <h1>Results:</h1>
       </div>
