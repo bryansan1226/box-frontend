@@ -15,11 +15,14 @@ import PopupState, { bindToggle, bindPopper } from "material-ui-popup-state";
 import Fade from "@mui/material/Fade";
 import Paper from "@mui/material/Paper";
 import Comment from "./Comment";
+import Box from "@mui/material/Box";
 
 function Post(props) {
   const [userInfo, setUserInfo] = useState([]);
   const [commentText, setCommentText] = useState("");
   const [comments, setComments] = useState([]);
+  const [likes, setLikes] = useState([]);
+  const [liked, isLiked] = useState(false);
 
   const handleCommentText = (event) => {
     const inputValue = event.target.value;
@@ -37,24 +40,77 @@ function Post(props) {
       .then((response) => {
         const { message } = response.data;
         console.log("Response from server:", message);
-        //  props.getUserPosts();
         setCommentText("");
       })
       .catch((error) => {
         console.error("Error posting data: ", error);
       });
   };
+  const handleLike = async () => {
+    if (!liked) {
+      const currentTimestamp = new Date().toISOString();
+      axios
+        .post(`${backendUrl}api/likePost`, {
+          post_id: props.content.post_id,
+          user_id: props.userInfo.user_id,
+          created_at: currentTimestamp,
+        })
+        .then((response) => {
+          const { message } = response.data;
+          isLiked(true);
+          console.log("Response from server:", message);
+        })
+        .catch((error) => {
+          console.error("Error posting data: ", error);
+        });
+    } else {
+      axios
+        .delete(`${backendUrl}api/dislikePost`, {
+          data: {
+            user_id: props.userInfo.user_id,
+            post_id: props.content.post_id,
+          },
+        })
+        .then((response) => {
+          const { message } = response.data;
+          isLiked(false);
+          console.log("Response from server:", message);
+        })
+        .catch((error) => {
+          console.error("Error deleting data: ", error);
+        });
+    }
+  };
+
   const getComments = async () => {
     axios
       .get(`${backendUrl}api/getComments/${props.content.post_id}`)
       .then((response) => {
         const message = response.data.rows;
-        console.log(message);
         setComments(message);
       })
       .catch((error) => {
         console.error("Error fetching data: ", error);
       });
+  };
+  const getLikes = async () => {
+    axios
+      .get(`${backendUrl}api/getLikes/${props.content.post_id}`)
+      .then((response) => {
+        const message = response.data.rows;
+        console.log(message);
+        setLikes(message);
+      })
+      .catch((error) => {
+        console.error("Error fetching data: ", error);
+      });
+  };
+  const isLikedByUser = (arr) => {
+    for (let i = 0; i < likes.length; i++) {
+      console.log("Test", arr[i].user_id);
+      if (arr[i].user_id == props.userInfo.user_id) return true;
+    }
+    return false;
   };
 
   const findByUserID = async () => {
@@ -71,49 +127,69 @@ function Post(props) {
   useEffect(() => {
     findByUserID();
     getComments();
+    getLikes().then(() => {
+      isLiked(isLikedByUser(likes));
+      console.log(liked);
+    });
   }, []);
   return (
-    <Card style={{ maxWidth: "100%" }}>
-      <CardContent>
-        {
-          <Typography gutterBottom variant="h5" component="div">
-            {userInfo.first_name} {userInfo.last_name}
-          </Typography>
-        }
-        <Typography variant="body1" color="text.secondary">
-          {props.content.content}
-        </Typography>
-        <PopupState variant="popper" popupId="demo-popup-popper">
-          {(popupState) => (
-            <div>
-              <Button size="small" {...bindToggle(popupState)}>
-                View comments ({comments.length})
+    <Box m={2}>
+      <Paper elevation={4}>
+        <Card style={{ maxWidth: "100%" }}>
+          <CardContent>
+            {
+              <Typography gutterBottom variant="h5" component="div">
+                {userInfo.first_name} {userInfo.last_name}
+              </Typography>
+            }
+            <Typography variant="body1" color="text.secondary">
+              {props.content.content}
+            </Typography>
+            <PopupState variant="popper" popupId="demo-popup-popper">
+              {(popupState) => (
+                <div>
+                  <Button size="small" {...bindToggle(popupState)}>
+                    View comments ({comments.length})
+                  </Button>
+                  <Popper {...bindPopper(popupState)} transition>
+                    {({ TransitionProps }) => (
+                      <Fade {...TransitionProps} timeout={350}>
+                        <Box>
+                          <Paper>
+                            {comments.map((content, index) => (
+                              <Comment key={index} content={content} />
+                            ))}
+                          </Paper>
+                        </Box>
+                      </Fade>
+                    )}
+                  </Popper>
+                </div>
+              )}
+            </PopupState>
+          </CardContent>
+          <CardActions>
+            <TextField
+              variant="filled"
+              fullWidth
+              onChange={handleCommentText}
+            />
+            <Button size="small" onClick={handleNewComment}>
+              Comment
+            </Button>
+            {liked ? (
+              <Button size="small" variant="contained" onClick={handleLike}>
+                Like ({likes.length})
               </Button>
-              <Popper {...bindPopper(popupState)} transition>
-                {({ TransitionProps }) => (
-                  <Fade {...TransitionProps} timeout={350}>
-                    <Paper>
-                      <div>
-                        {comments.map((content, index) => (
-                          <Comment key={index} content={content} />
-                        ))}
-                      </div>
-                    </Paper>
-                  </Fade>
-                )}
-              </Popper>
-            </div>
-          )}
-        </PopupState>
-      </CardContent>
-      <CardActions>
-        <TextField variant="filled" fullWidth onChange={handleCommentText} />
-        <Button size="small" onClick={handleNewComment}>
-          Comment
-        </Button>
-        <Button size="small">Like</Button>
-      </CardActions>
-    </Card>
+            ) : (
+              <Button size="small" onClick={handleLike}>
+                Like ({likes.length})
+              </Button>
+            )}
+          </CardActions>
+        </Card>
+      </Paper>
+    </Box>
   );
 }
 export default Post;
