@@ -59,6 +59,7 @@ function Post(props) {
           const { message } = response.data;
           isLiked(true);
           console.log("Response from server:", message);
+          getLikes();
         })
         .catch((error) => {
           console.error("Error posting data: ", error);
@@ -75,6 +76,7 @@ function Post(props) {
           const { message } = response.data;
           isLiked(false);
           console.log("Response from server:", message);
+          getLikes();
         })
         .catch((error) => {
           console.error("Error deleting data: ", error);
@@ -94,19 +96,21 @@ function Post(props) {
       });
   };
   const getLikes = async () => {
-    axios
+    return axios
       .get(`${backendUrl}api/getLikes/${props.content.post_id}`)
       .then((response) => {
         const message = response.data.rows;
         console.log(message);
         setLikes(message);
+        return message;
       })
       .catch((error) => {
         console.error("Error fetching data: ", error);
+        return [];
       });
   };
-  const isLikedByUser = (arr) => {
-    for (let i = 0; i < likes.length; i++) {
+  const isLikedByUser = async (arr) => {
+    for (let i = 0; i < arr.length; i++) {
       console.log("Test", arr[i].user_id);
       if (arr[i].user_id == props.userInfo.user_id) return true;
     }
@@ -124,13 +128,16 @@ function Post(props) {
         console.error("Error fetching data: ", error);
       });
   };
+  const fetchData = async () => {
+    console.log("Fetching");
+    await findByUserID();
+    await getComments();
+    let data = await getLikes();
+    const likedByUser = await isLikedByUser(data);
+    isLiked(likedByUser);
+  };
   useEffect(() => {
-    findByUserID();
-    getComments();
-    getLikes().then(() => {
-      isLiked(isLikedByUser(likes));
-      console.log(liked);
-    });
+    fetchData();
   }, []);
   return (
     <Box m={2}>
