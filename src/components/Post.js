@@ -100,7 +100,7 @@ function Post(props) {
       .get(`${backendUrl}api/getLikes/${props.content.post_id}`)
       .then((response) => {
         const message = response.data.rows;
-        console.log(message);
+        //  console.log(message);
         setLikes(message);
         return message;
       })
@@ -111,7 +111,6 @@ function Post(props) {
   };
   const isLikedByUser = async (arr) => {
     for (let i = 0; i < arr.length; i++) {
-      console.log("Test", arr[i].user_id);
       if (arr[i].user_id == props.userInfo.user_id) return true;
     }
     return false;
@@ -129,7 +128,6 @@ function Post(props) {
       });
   };
   const fetchData = async () => {
-    console.log("Fetching");
     await findByUserID();
     await getComments();
     let data = await getLikes();
