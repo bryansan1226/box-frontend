@@ -160,7 +160,14 @@ function Post(props) {
                     {({ TransitionProps }) => (
                       <Fade {...TransitionProps} timeout={350}>
                         <Box>
-                          <Paper>
+                          <Paper
+                            sx={{
+                              width: "80vw",
+                              height: "25vh",
+                              maxHeight: "25vh",
+                              overflow: "auto",
+                            }}
+                          >
                             {comments.map((content, index) => (
                               <Comment key={index} content={content} />
                             ))}

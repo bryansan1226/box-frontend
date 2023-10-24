@@ -85,7 +85,7 @@ export default function PrimarySearchAppBar(props) {
   const handleMobileMenuOpen = (event) => {
     setMobileMoreAnchorEl(event.currentTarget);
   };
-  const handleSearch = (e) => {
+  const handleSearch = () => {
     navigate(
       `/searchResults?searchQuery=${searchInput}&userInfo=${props.userInfo.user_id}`
     );
@@ -94,6 +94,9 @@ export default function PrimarySearchAppBar(props) {
     if (e.key === "Enter") {
       handleSearch();
     }
+  };
+  const handleMessageClick = () => {
+    navigate(`/messages?userInfo=${props.userInfo.user_id}`);
   };
 
   const menuId = "primary-search-account-menu";
@@ -135,7 +138,7 @@ export default function PrimarySearchAppBar(props) {
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
-      <MenuItem>
+      <MenuItem onClick={handleMessageClick}>
         <IconButton size="large" aria-label="show 4 new mails" color="inherit">
           <Badge badgeContent={4} color="error">
             <MailIcon />
@@ -210,7 +213,7 @@ export default function PrimarySearchAppBar(props) {
               color="inherit"
             >
               <Badge badgeContent={4} color="error">
-                <MailIcon />
+                <MailIcon onClick={handleMessageClick} />
               </Badge>
             </IconButton>
             <IconButton
