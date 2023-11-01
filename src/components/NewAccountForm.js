@@ -67,42 +67,50 @@ function NewAccountForm(props) {
       });
     props.handleClose();
   };
+  const textFieldStyle = { margin: "8px 0" };
 
   return (
     <>
       <Card sx={{ minWidth: 275 }}>
-        <CardContent>
-          <div style={{ position: "relative" }}>
-            <Button
-              style={{ position: "absolute", top: 0, right: 0 }}
-              onClick={props.handleClose}
-            >
-              <CloseIcon />
-            </Button>
-          </div>
+        <CardContent
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            marginLeft: "2%",
+            marginRight: "2%",
+          }}
+        >
+          <Button sx={{ alignSelf: "flex-end" }} onClick={props.handleClose}>
+            <CloseIcon />
+          </Button>
+
           <TextField
             required
             id="firstName"
             onChange={handleFirstName}
             label="First name"
+            sx={textFieldStyle}
           />
           <TextField
             required
             id="lastName"
             onChange={handleLastName}
             label="Last name"
+            sx={textFieldStyle}
           />
           <TextField
             required
             id="username"
             onChange={handleUsername}
             label="Username"
+            sx={textFieldStyle}
           />
           <TextField
             required
             id="email"
             onChange={handleEmail}
             label="E-Mail"
+            sx={textFieldStyle}
           />
           <TextField
             required
@@ -110,9 +118,15 @@ function NewAccountForm(props) {
             type="password"
             onChange={handlePassword}
             label="Password"
+            sx={textFieldStyle}
           />
         </CardContent>
-        <CardActions>
+        <CardActions
+          sx={{
+            display: "flex",
+            justifyContent: "center", // Center the button horizontally
+          }}
+        >
           <Button variant="contained" size="small" onClick={handleSubmit}>
             Create Account
           </Button>
