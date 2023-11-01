@@ -16,6 +16,10 @@ import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import axios from "axios";
+import backendUrl from "../config";
+import { useEffect } from "react";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -68,6 +72,47 @@ export default function PrimarySearchAppBar(props) {
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+  const [userInfo, setUserInfo] = useState(null);
+  //const navigate = useNavigate();
+
+  const fetchUserInfo = async () => {
+    //  console.log("got to fetch");
+    try {
+      //Retrieves token from localstorage, if no token is present the user will be redirected to /login
+      const token = localStorage.getItem("token");
+      if (!token) {
+        //redirect
+        //TODO: Add code to redirect to login page
+        return null;
+      }
+      //Makes a GET request to fetch user data using token
+      const response = await axios.get(`${backendUrl}api/user`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // Returns user data if successful
+      return response.data;
+      //console.log(response.data);
+    } catch (error) {
+      console.error("Error fetching user information", error);
+      return null;
+    }
+  };
+  //Function to get user info using fetchUserInfo and updates userInfo state.
+  const getUserInfo = async () => {
+    const info = await fetchUserInfo();
+    if (info) {
+      setUserInfo(info);
+      // console.log("User info ", info);
+    } else {
+      console.log("User not authenticated or an error occured.");
+    }
+  };
+  //Effect hook to get user info when component mounts
+  useEffect(() => {
+    getUserInfo();
+  }, []);
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -87,7 +132,7 @@ export default function PrimarySearchAppBar(props) {
   };
   const handleSearch = () => {
     navigate(
-      `/searchResults?searchQuery=${searchInput}&userInfo=${props.userInfo.user_id}`
+      `/searchResults?searchQuery=${searchInput}&userInfo=${userInfo.user_id}`
     );
   };
   const handleEnterKeyPress = (e) => {
@@ -96,7 +141,10 @@ export default function PrimarySearchAppBar(props) {
     }
   };
   const handleMessageClick = () => {
-    navigate(`/messages?userInfo=${props.userInfo.user_id}`);
+    navigate(`/messages?userInfo=${userInfo.user_id}`);
+  };
+  const handleLogoClick = () => {
+    navigate(`/home`);
   };
 
   const menuId = "primary-search-account-menu";
@@ -190,7 +238,8 @@ export default function PrimarySearchAppBar(props) {
             variant="h6"
             noWrap
             component="div"
-            sx={{ display: { xs: "none", sm: "block" } }}
+            sx={{ display: { xs: "none", sm: "block" }, cursor: "pointer" }}
+            onClick={handleLogoClick}
           >
             The Box
           </Typography>

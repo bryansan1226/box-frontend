@@ -34,16 +34,27 @@ function LoginForm() {
       console.error(error.response?.data?.error || "Error during login");
     }
   };
+  const handleEnterKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleLogin();
+    }
+  };
 
   return (
     <Card sx={{ minWidth: 275 }}>
       <CardContent>
-        <TextField id="username" onChange={handleUsername} label="Username" />
+        <TextField
+          id="username"
+          onChange={handleUsername}
+          onKeyDown={handleEnterKeyPress}
+          label="Username"
+        />
         <TextField
           id="password"
           type="password"
           onChange={handlePassword}
           label="Password"
+          onKeyDown={handleEnterKeyPress}
         />
       </CardContent>
       <CardActions>

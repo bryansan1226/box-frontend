@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import AppBar from "../components/AppBar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
@@ -8,13 +8,97 @@ import Fade from "@mui/material/Fade";
 import Paper from "@mui/material/Paper";
 import { TextField } from "@mui/material";
 import { useState } from "react";
+import axios from "axios";
+import backendUrl from "../config";
+import { useEffect } from "react";
+import ConversationCard from "../components/ConversationCard";
 
 function Messages() {
-  const { params } = useLocation();
-  const userInfo = new URLSearchParams(params);
+  const { search } = useLocation();
+  const userInfo = new URLSearchParams(search);
   const user_id = userInfo.get("userInfo");
   const [newMessageValue, setNewMessageValue] = useState("");
+  const [following, setFollowing] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [conversations, setConversations] = useState([]);
+  const navigate = useNavigate();
 
+  const getFollowing = async () => {
+    console.log(userInfo);
+    console.log(user_id);
+    await axios
+      .get(`${backendUrl}api/getFollowing/${user_id}`)
+      .then((response) => {
+        const message = response.data.rows;
+        setFollowing(message);
+        console.log(message);
+      })
+      .catch((error) => {
+        console.error("Error fetching data: ", error);
+      });
+  };
+  const handleSendMessage = async () => {
+    const currentTimestamp = new Date().toISOString();
+    axios
+      .post(`${backendUrl}api/newMessage`, {
+        sender_id: user_id,
+        receiver_id: selectedUser.user_id,
+        content: newMessageValue,
+        created_at: currentTimestamp,
+      })
+      .then((response) => {
+        const { message } = response.data;
+        console.log("Response from server:", message);
+        setNewMessageValue("");
+      })
+      .catch((error) => {
+        console.error("Error posting data: ", error);
+      });
+  };
+  const getMessages = async () => {
+    await axios
+      .get(`${backendUrl}api/getMessages/${user_id}`)
+      .then((response) => {
+        const message = response.data.rows;
+        setMessages(
+          message.sort((a, b) => {
+            const timeStampA = new Date(a.created_at).getTime();
+            const timeStampB = new Date(b.created_at).getTime();
+            return timeStampB - timeStampA;
+          })
+        );
+
+        console.log("Response from server:", message);
+      })
+      .catch((error) => {
+        console.error("Error fetching data: ", error);
+      });
+    //getConversations(messages);
+  };
+  const getConversations = async (arr) => {
+    let map = new Map();
+    for (let msg of arr) {
+      if (msg.sender_id != user_id) {
+        if (!map.has(msg.sender_id)) map.set(msg.sender_id, [msg]);
+        else map.get(msg.sender_id).push(msg);
+      } else {
+        if (!map.has(msg.receiver_id)) map.set(msg.receiver_id, [msg]);
+        else map.get(msg.receiver_id).push(msg);
+      }
+    }
+    //console.log(map);
+    console.log(Array.from(map));
+    setConversations(Array.from(map));
+  };
+
+  useEffect(() => {
+    getFollowing();
+    getMessages();
+  }, []);
+  useEffect(() => {
+    getConversations(messages);
+  }, [messages]);
   return (
     <>
       <AppBar />
@@ -31,27 +115,51 @@ function Messages() {
             <Popper {...bindPopper(popupState)} transition>
               {({ TransitionProps }) => (
                 <Fade {...TransitionProps} timeout={350}>
-                  <Paper sx={{ width: "75vw", height: "40vh", p: 2 }}>
+                  <Paper
+                    sx={{
+                      width: "75vw",
+                      height: "35vh",
+                      p: 2,
+                      display: "flex",
+                      flexDirection: "column",
+                      overflow: "auto",
+                    }}
+                  >
                     <Typography style={{ margin: "10px", display: "flex" }}>
                       To:
                       <PopupState variant="popper" popupId="demo-popup-popper">
                         {(popupState) => (
-                          <div>
+                          <>
                             <Button {...bindToggle(popupState)}>
-                              Select from following:
+                              {selectedUser
+                                ? `${selectedUser.first_name} ${selectedUser.last_name}`
+                                : "Select from following:"}
                             </Button>
                             <Popper {...bindPopper(popupState)} transition>
                               {({ TransitionProps }) => (
                                 <Fade {...TransitionProps} timeout={350}>
                                   <Paper>
-                                    <Typography sx={{ p: 2 }}>
-                                      The content of the Popper.
-                                    </Typography>
+                                    {following.map((item, index) => (
+                                      <Typography
+                                        key={index}
+                                        onClick={() => {
+                                          setSelectedUser(item);
+                                          popupState.close();
+                                        }}
+                                        style={{
+                                          width: "15vw",
+                                          textAlign: "center",
+                                          fontSize: "110%",
+                                        }}
+                                      >
+                                        {item.first_name + " " + item.last_name}
+                                      </Typography>
+                                    ))}
                                   </Paper>
                                 </Fade>
                               )}
                             </Popper>
-                          </div>
+                          </>
                         )}
                       </PopupState>
                     </Typography>
@@ -59,18 +167,23 @@ function Messages() {
                       id="standard-multiline-static"
                       label="Message"
                       multiline
-                      rows={4}
+                      rows={10}
                       defaultValue=""
                       variant="filled"
                       fullWidth
-                      max
+                      style={{
+                        minHeight: "35%",
+                        maxHeight: "75%",
+                        overflow: "auto",
+                      }}
                       onChange={(e) => {
                         setNewMessageValue(e.target.value);
-                        console.log(newMessageValue);
                       }}
                     />
                     <Typography sx={{ p: 2 }}>
-                      <Button variant="contained">Send</Button>
+                      <Button variant="contained" onClick={handleSendMessage}>
+                        Send
+                      </Button>
                       <Button {...bindToggle(popupState)}>Cancel</Button>
                     </Typography>
                   </Paper>
@@ -80,6 +193,18 @@ function Messages() {
           </div>
         )}
       </PopupState>
+      {conversations.length ? (
+        conversations.map((conversation) => (
+          <ConversationCard
+            key={conversation[0]}
+            message={conversation[1][0]}
+            user_id={user_id}
+            conversation_id={conversation[0]}
+          />
+        ))
+      ) : (
+        <Typography>You have no messages to view</Typography>
+      )}
     </>
   );
 }

@@ -27,7 +27,7 @@ function PostFeed(props) {
       .then((response) => {
         const message = response.data.rows;
         allPosts = [...allPosts, ...message];
-        console.log("Response from server:", message);
+        //console.log("Response from server:", message);
         getPosts(
           allPosts.sort((a, b) => {
             const timeStampA = new Date(a.created_at).getTime();

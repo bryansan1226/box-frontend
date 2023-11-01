@@ -42,6 +42,7 @@ function Homepage() {
     const info = await fetchUserInfo();
     if (info) {
       setUserInfo(info);
+      console.log("User info ", info);
     } else {
       console.log("User not authenticated or an error occured.");
     }
@@ -49,7 +50,6 @@ function Homepage() {
   //Effect hook to get user info when component mounts
   useEffect(() => {
     getUserInfo();
-    console.log("User info ", userInfo);
   }, []);
   //Handles signing out by removing the session token from localstorage and navigates to index page.
   const handleSignOut = () => {
@@ -63,7 +63,7 @@ function Homepage() {
   } else {
     return (
       <>
-        <AppBar userInfo={userInfo} />
+        <AppBar />
         <Typography variant="h4" gutterBottom>
           Welcome, {userInfo.first_name}!
         </Typography>
