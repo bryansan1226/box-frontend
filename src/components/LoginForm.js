@@ -6,11 +6,15 @@ import TextField from "@mui/material/TextField";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
+import NewAccountForm from "./NewAccountForm";
+import Backdrop from "@mui/material/Backdrop";
+import { Container } from "@mui/material";
+import Typography from "@mui/material/Typography";
 function LoginForm() {
   //declaring variables to handle user input and allow navigating within the app using navigate
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleUsername = (event) => {
@@ -39,30 +43,68 @@ function LoginForm() {
       handleLogin();
     }
   };
+  const handleClose = () => {
+    setOpen(false);
+  };
+  const handleOpen = () => {
+    setOpen(true);
+  };
 
   return (
-    <Card sx={{ minWidth: 275 }}>
-      <CardContent>
-        <TextField
-          id="username"
-          onChange={handleUsername}
-          onKeyDown={handleEnterKeyPress}
-          label="Username"
-        />
-        <TextField
-          id="password"
-          type="password"
-          onChange={handlePassword}
-          label="Password"
-          onKeyDown={handleEnterKeyPress}
-        />
-      </CardContent>
-      <CardActions>
-        <Button variant="contained" size="small" onClick={handleLogin}>
-          Sign in
-        </Button>
-      </CardActions>
-    </Card>
+    <Container
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "80vh", // Adjust this to control vertical centering
+      }}
+    >
+      <Card sx={{ minWidth: 275 }}>
+        <CardContent
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <Typography variant="h3" gutterBottom>
+            The Box
+          </Typography>
+          <TextField
+            id="username"
+            onChange={handleUsername}
+            onKeyDown={handleEnterKeyPress}
+            label="Username"
+            sx={{ margin: "8px" }}
+          />
+          <TextField
+            id="password"
+            type="password"
+            onChange={handlePassword}
+            label="Password"
+            onKeyDown={handleEnterKeyPress}
+            sx={{ marginTop: "8px" }}
+          />
+        </CardContent>
+        <CardActions>
+          <Button variant="contained" size="small" onClick={handleLogin}>
+            Sign in
+          </Button>
+          <Button variant="contained" size="small" onClick={handleOpen}>
+            Create new account
+          </Button>
+        </CardActions>
+        {/*The backdrop will also render the NewAccount component when opened and passes the handleClose
+        function so it can be closed from within the component */}
+        <Backdrop
+          sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          open={open}
+          //onClick={handleClose}
+        >
+          <NewAccountForm handleClose={handleClose} />
+        </Backdrop>
+      </Card>
+    </Container>
   );
 }
 export default LoginForm;
