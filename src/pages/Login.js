@@ -18,8 +18,8 @@ function Login() {
     <>
       <Container
         sx={{
-          width: "100vw",
-          height: "100vh",
+          minWidth: "100vw",
+          minHeight: "100vh",
           backgroundColor: "rgb(24,118,210,0.25)",
         }}
       >

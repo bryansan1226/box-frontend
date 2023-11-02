@@ -20,7 +20,7 @@ function Homepage() {
       const token = localStorage.getItem("token");
       if (!token) {
         //redirect
-        //TODO: Add code to redirect to login page
+        navigate("/");
         return null;
       }
       //Makes a GET request to fetch user data using token
@@ -68,14 +68,6 @@ function Homepage() {
           Welcome, {userInfo.first_name}!
         </Typography>
         <PostFeed userInfo={userInfo} />
-        <Button variant="contained" size="small" onClick={null}>
-          {" "}
-          {/*handle page for viewing following*/}
-          View Following
-        </Button>
-        <Button variant="contained" size="small" onClick={handleSignOut}>
-          Sign out
-        </Button>
       </>
     );
   }

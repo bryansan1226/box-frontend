@@ -20,6 +20,11 @@ import { useState } from "react";
 import axios from "axios";
 import backendUrl from "../config";
 import { useEffect } from "react";
+import Popper from "@mui/material/Popper";
+import PopupState, { bindToggle, bindPopper } from "material-ui-popup-state";
+import Fade from "@mui/material/Fade";
+import Paper from "@mui/material/Paper";
+import Notifications from "./Notifications";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -67,7 +72,9 @@ export default function PrimarySearchAppBar(props) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
   const [searchInput, setSearchInput] = React.useState("");
-
+  const [newMessages, setNewMessages] = useState(0);
+  const [newNotifications, setNewNotifications] = useState(0);
+  const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
 
   const isMenuOpen = Boolean(anchorEl);
@@ -82,7 +89,7 @@ export default function PrimarySearchAppBar(props) {
       const token = localStorage.getItem("token");
       if (!token) {
         //redirect
-        //TODO: Add code to redirect to login page
+        navigate("/");
         return null;
       }
       //Makes a GET request to fetch user data using token
@@ -104,6 +111,9 @@ export default function PrimarySearchAppBar(props) {
     const info = await fetchUserInfo();
     if (info) {
       setUserInfo(info);
+      getNewMessages(info);
+      getNotifications(info);
+      return info.first_name;
       // console.log("User info ", info);
     } else {
       console.log("User not authenticated or an error occured.");
@@ -143,8 +153,53 @@ export default function PrimarySearchAppBar(props) {
   const handleMessageClick = () => {
     navigate(`/messages?userInfo=${userInfo.user_id}`);
   };
+  const handleNotificationsClick = () => {
+    navigate(`/notifications?userInfo=${userInfo.user_id}`);
+  };
   const handleLogoClick = () => {
     navigate(`/home`);
+  };
+  const getNewMessages = async (info) => {
+    await axios
+      .get(`${backendUrl}api/getNewMessages/${info.user_id}`)
+      .then((response) => {
+        const message = response.data.rows;
+        setNewMessages(message.length);
+
+        console.log("Response from server:", message);
+      })
+      .catch((error) => {
+        console.error("Error fetching data: ", error);
+      });
+  };
+  const getNotifications = async (info) => {
+    await axios
+      .get(`${backendUrl}api/getNotifications/${info.user_id}`)
+      .then((response) => {
+        const message = response.data.rows;
+        setNotifications(
+          message.sort((a, b) => {
+            const timeStampA = new Date(a.created_at).getTime();
+            const timeStampB = new Date(b.created_at).getTime();
+            return timeStampB - timeStampA;
+          })
+        );
+        console.log("Response from server:", message);
+        let count = 0;
+        for (let notification of message) {
+          if (!notification.is_read) count++;
+        }
+        setNewNotifications(count);
+      })
+      .catch((error) => {
+        console.error("Error fetching data: ", error);
+      });
+  };
+
+  const handleSignOut = () => {
+    setUserInfo(null);
+    localStorage.removeItem("token");
+    navigate("/");
   };
 
   const menuId = "primary-search-account-menu";
@@ -164,8 +219,9 @@ export default function PrimarySearchAppBar(props) {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      <MenuItem onClick={handleMenuClose}>Profile (Future feature)</MenuItem>
+      <MenuItem onClick={handleMenuClose}>My account (Future feature)</MenuItem>
+      <MenuItem onClick={handleSignOut}>Sign Out</MenuItem>
     </Menu>
   );
 
@@ -187,26 +243,27 @@ export default function PrimarySearchAppBar(props) {
       onClose={handleMobileMenuClose}
     >
       <MenuItem onClick={handleMessageClick}>
-        <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-          <Badge badgeContent={4} color="error">
+        <IconButton size="large" aria-label="show new mails" color="inherit">
+          <Badge badgeContent={newMessages} color="error">
             <MailIcon />
           </Badge>
         </IconButton>
         <p>Messages</p>
       </MenuItem>
-      <MenuItem>
+      <MenuItem onClick={handleNotificationsClick}>
         <IconButton
           size="large"
           aria-label="show 17 new notifications"
           color="inherit"
         >
-          <Badge badgeContent={17} color="error">
+          <Badge badgeContent={newNotifications} color="error">
             <NotificationsIcon />
           </Badge>
         </IconButton>
         <p>Notifications</p>
       </MenuItem>
-      <MenuItem onClick={handleProfileMenuOpen}>
+
+      <MenuItem onClick={handleSignOut}>
         <IconButton
           size="large"
           aria-label="account of current user"
@@ -216,7 +273,7 @@ export default function PrimarySearchAppBar(props) {
         >
           <AccountCircle />
         </IconButton>
-        <p>Profile</p>
+        <p>Sign Out</p>
       </MenuItem>
     </Menu>
   );
@@ -232,7 +289,7 @@ export default function PrimarySearchAppBar(props) {
             aria-label="open drawer"
             sx={{ mr: 2 }}
           >
-            <MenuIcon />
+            {/*<MenuIcon />*/}
           </IconButton>
           <Typography
             variant="h6"
@@ -260,20 +317,53 @@ export default function PrimarySearchAppBar(props) {
               size="large"
               aria-label="show 4 new mails"
               color="inherit"
+              onClick={handleMessageClick}
             >
-              <Badge badgeContent={4} color="error">
-                <MailIcon onClick={handleMessageClick} />
+              <Badge badgeContent={newMessages} color="error">
+                <MailIcon />
               </Badge>
             </IconButton>
-            <IconButton
-              size="large"
-              aria-label="show 17 new notifications"
-              color="inherit"
-            >
-              <Badge badgeContent={17} color="error">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
+
+            <PopupState variant="popper" popupId="demo-popup-popper">
+              {(popupState) => (
+                <div>
+                  <IconButton
+                    size="large"
+                    aria-label="show 17 new notifications"
+                    color="inherit"
+                    {...bindToggle(popupState)}
+                  >
+                    <Badge badgeContent={newNotifications} color="error">
+                      <NotificationsIcon />
+                    </Badge>
+                  </IconButton>
+                  <Popper {...bindPopper(popupState)} transition>
+                    {({ TransitionProps }) => (
+                      <Fade {...TransitionProps} timeout={350}>
+                        <Box>
+                          <Paper
+                            sx={{
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              width: "30vw",
+                              height: "50vh",
+                              maxHeight: "80vh",
+                              overflow: "auto",
+                              spacing: "2vh",
+                              backgroundColor: "rgb(24,118,210,.9)",
+                            }}
+                          >
+                            <Notifications content={notifications} />
+                          </Paper>
+                        </Box>
+                      </Fade>
+                    )}
+                  </Popper>
+                </div>
+              )}
+            </PopupState>
             <IconButton
               size="large"
               edge="end"

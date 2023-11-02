@@ -45,6 +45,21 @@ function Post(props) {
       .catch((error) => {
         console.error("Error posting data: ", error);
       });
+
+    axios
+      .post(`${backendUrl}api/newNotification`, {
+        user_id: props.content.user_id,
+        content: `${props.userInfo.first_name} commented on your post!`,
+        created_at: currentTimestamp,
+        is_read: false,
+      })
+      .then((response) => {
+        const { message } = response.data;
+        console.log("Response from server:", message);
+      })
+      .catch((error) => {
+        console.error("Error posting data: ", error);
+      });
   };
   const handleLike = async () => {
     if (!liked) {
@@ -60,6 +75,20 @@ function Post(props) {
           isLiked(true);
           console.log("Response from server:", message);
           getLikes();
+          axios
+            .post(`${backendUrl}api/newNotification`, {
+              user_id: props.content.user_id,
+              content: `${props.userInfo.first_name} liked your post!`,
+              created_at: currentTimestamp,
+              is_read: false,
+            })
+            .then((response) => {
+              const { message } = response.data;
+              console.log("Response from server:", message);
+            })
+            .catch((error) => {
+              console.error("Error posting data: ", error);
+            });
         })
         .catch((error) => {
           console.error("Error posting data: ", error);

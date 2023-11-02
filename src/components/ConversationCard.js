@@ -37,9 +37,10 @@ function ConversationCard(props) {
     <Card
       sx={{
         width: "99vw",
-        backgroundColor: props.message.is_read
-          ? "white"
-          : "rgb(24,118,210,0.25)",
+        backgroundColor:
+          props.message.is_read || props.message.sender_id == props.user_id
+            ? "white"
+            : "rgb(24,118,210,0.25)",
       }}
     >
       <CardActionArea

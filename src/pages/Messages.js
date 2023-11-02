@@ -74,7 +74,6 @@ function Messages() {
       .catch((error) => {
         console.error("Error fetching data: ", error);
       });
-    //getConversations(messages);
   };
   const getConversations = async (arr) => {
     let map = new Map();

@@ -124,7 +124,7 @@ function NewAccountForm(props) {
         <CardActions
           sx={{
             display: "flex",
-            justifyContent: "center", // Center the button horizontally
+            justifyContent: "center",
           }}
         >
           <Button variant="contained" size="small" onClick={handleSubmit}>

@@ -28,6 +28,20 @@ function UserCard(props) {
       .catch((error) => {
         console.error("Error posting data: ", error);
       });
+    axios
+      .post(`${backendUrl}api/newNotification`, {
+        user_id: props.result.user_id,
+        content: `${props.userName} is now following you!`,
+        created_at: currentTimestamp,
+        is_read: false,
+      })
+      .then((response) => {
+        const { message } = response.data;
+        console.log("Response from server:", message);
+      })
+      .catch((error) => {
+        console.error("Error posting data: ", error);
+      });
   };
   const unfollowUser = async () => {
     //   const currentTimestamp = new Date().toISOString();

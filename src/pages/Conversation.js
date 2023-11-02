@@ -3,7 +3,7 @@ import AppBar from "../components/AppBar";
 import App from "../App";
 import axios from "axios";
 import backendUrl from "../config";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useState } from "react";
 import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
@@ -18,6 +18,7 @@ function Conversation() {
   const conversation_id = queryParams.get("conversation_id");
   const [messages, setMessages] = useState([]);
   const [newMessageValue, setNewMessageValue] = useState("");
+  const containerRef = useRef(null);
   const getConversation = async () => {
     axios
       .get(`${backendUrl}api/getConversation`, {
@@ -26,7 +27,13 @@ function Conversation() {
       .then((response) => {
         const message = response.data.rows;
         console.log("Response from server:", message);
-        setMessages(message);
+        setMessages(
+          message.sort((a, b) => {
+            const timeStampA = new Date(a.created_at).getTime();
+            const timeStampB = new Date(b.created_at).getTime();
+            return timeStampA - timeStampB;
+          })
+        );
       })
       .catch((error) => {
         console.error("Error getting data: ", error);
@@ -57,10 +64,30 @@ function Conversation() {
       handleSendMessage();
     }
   };
+  const setMessagesAsRead = async () => {
+    await axios
+      .put(`${backendUrl}api/setMessagesAsRead`, {
+        receiver_id: user_id,
+      })
+      .then((response) => {
+        const { message } = response.data;
+        console.log("Response from server:", message);
+        setNewMessageValue("");
+      })
+      .catch((error) => {
+        console.error("Error posting data: ", error);
+      });
+  };
 
   useEffect(() => {
     getConversation();
+    setMessagesAsRead();
   }, []);
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
+  }, [messages]);
   return (
     <>
       <AppBar />
@@ -76,6 +103,7 @@ function Conversation() {
         }}
       >
         <Container
+          ref={containerRef}
           sx={{
             flex: 1,
             overflow: "auto",
@@ -101,6 +129,7 @@ function Conversation() {
                       message.sender_id == user_id
                         ? "rgba(24,118,210,0.25)"
                         : "white",
+                    maxWidth: "90%",
                   }}
                   variant="outlined"
                 >
@@ -134,7 +163,6 @@ function Conversation() {
           label="Message"
           multiline
           rows={4}
-          defaultValue=""
           value={newMessageValue}
           style={{
             minHeight: "35%",
